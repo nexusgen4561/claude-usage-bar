@@ -12,7 +12,7 @@ Click it for the full breakdown: one row per limit window, each with a status-co
 
 - macOS 13 (Ventura) or later, Apple silicon or Intel
 - Xcode command line tools — `xcode-select --install`
-- Claude Code installed and signed in (the widget reads your existing session; it never asks for credentials)
+- Claude Code installed and signed in — run `claude` in a terminal, then `/login`. The widget reads that existing session; it never asks you for credentials.
 
 ## Install
 
@@ -66,7 +66,7 @@ Two constraints are baked in, both learned the hard way:
 
 - The usage endpoint is **undocumented**. It can change shape or disappear without notice. The parser prefers the generic `limits` array and falls back to the older per-window fields, but a large enough change will break it.
 - First launch may show a keychain prompt. It's macOS asking whether `/usr/bin/security` may read the Claude Code credential — click **Always Allow** and it won't ask again.
-- If the icon reads `· Not signed in`, run `claude` in a terminal and sign in, then hit **Refresh now**.
+- If the icon reads `· Not signed in`, you have no stored credentials yet. Run `claude` in a terminal, then `/login` — starting `claude` on its own does not sign you in. Hit **Refresh now** afterwards.
 - Menu bar crowded? ⌘-drag the icon to reposition it.
 
 ## Uninstall

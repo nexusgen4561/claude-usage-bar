@@ -101,9 +101,9 @@ enum FetchProblem: Error {
     var detail: String {
         switch self {
         case .noCredentials:
-            return "No Claude Code credentials found. Run `claude` in a terminal and sign in."
+            return "No Claude Code credentials found. Run `claude` in a terminal, then `/login` to sign in."
         case .unauthorized:
-            return "The access token was rejected. Run `claude` in a terminal to refresh it."
+            return "The access token was rejected. Run `claude` in a terminal, then `/login` to sign in again."
         case .rateLimited:
             return "The usage endpoint returned 429. Backing off — showing the last known values."
         case .http(let code):
