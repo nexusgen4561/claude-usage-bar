@@ -16,8 +16,17 @@ Click it for the full breakdown: one row per limit window, each with a status-co
 
 ## Install
 
+### Homebrew
+
 ```bash
-git clone https://github.com/OWNER/claude-usage-bar.git
+brew install nexusgen4561/tap/claude-usage-bar
+open -a ~/Applications/"Claude Usage.app"
+```
+
+### From source
+
+```bash
+git clone https://github.com/nexusgen4561/claude-usage-bar.git
 cd claude-usage-bar
 ./build.sh
 open -a ~/Applications/"Claude Usage.app"
@@ -25,7 +34,7 @@ open -a ~/Applications/"Claude Usage.app"
 
 `build.sh` compiles a universal binary, assembles `~/Applications/Claude Usage.app`, and ad-hoc signs it. Nothing is installed system-wide. Pass `APP_DIR=/Applications` to build somewhere else.
 
-You build from source rather than downloading a binary on purpose — an unsigned app pulled off the internet gets quarantined by Gatekeeper and refuses to launch. Compiling locally sidesteps that entirely.
+Both routes compile on your machine rather than downloading a prebuilt binary, and that's deliberate — an unsigned app pulled off the internet gets quarantined by Gatekeeper and refuses to launch. Compiling locally sidesteps that entirely.
 
 ## Using it
 
