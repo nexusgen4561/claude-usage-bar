@@ -8,9 +8,17 @@ APP="${APP_DIR:-$HOME/Applications}/Claude Usage.app"
 BIN="$APP/Contents/MacOS/ClaudeUsageBar"
 DEPLOYMENT_TARGET=13.0
 
-# Take the version from the latest git tag so Finder's Get Info stays honest
-# without a constant to remember to bump. Tarball checkouts have no tags.
-VERSION="$(git -C "$SRC_DIR" describe --tags --abbrev=0 2>/dev/null | sed 's/^v//')"
+# Bundle version, in order of preference: VERSION from the caller (the Homebrew
+# formula passes its own), the latest git tag, then a dev placeholder. Released
+# tarballs carry no .git, and under `set -e` a bare assignment from a failing
+# command substitution aborts the whole script — hence the explicit branch.
+if [ -z "${VERSION:-}" ]; then
+    if VERSION="$(git -C "$SRC_DIR" describe --tags --abbrev=0 2>/dev/null)"; then
+        VERSION="${VERSION#v}"
+    else
+        VERSION=""
+    fi
+fi
 VERSION="${VERSION:-0.0.0-dev}"
 
 if ! command -v swiftc >/dev/null 2>&1; then
