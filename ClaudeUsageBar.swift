@@ -6,16 +6,19 @@
 // Two things matter for not getting rate limited:
 //   1. Send `User-Agent: claude-code/<version>`. Without it the endpoint drops you
 //      into an aggressively limited bucket and returns persistent 429s.
-//   2. Do not poll faster than ~180s. That is the observed safe floor.
-// Both are enforced below. The UI still ticks every second, because reset
-// countdowns are computed locally from `resets_at` and need no network.
+//   2. Keep the poll interval modest. 60s has been measured clean; the endpoint
+//      is metadata-only, so this is cheap, but it is not a free-for-all.
+// Both are enforced below, and a 429 doubles the interval up to `maxBackoff`,
+// so an interval that turns out to be too fast corrects itself. The UI still
+// ticks every second, because reset countdowns are computed locally from
+// `resets_at` and need no network.
 
 import AppKit
 import Foundation
 
 // MARK: - Tunables
 
-let pollInterval: TimeInterval = 180      // safe floor — see note above
+let pollInterval: TimeInterval = 60       // see the rate-limit note above
 let maxBackoff: TimeInterval = 1800       // cap when the endpoint 429s
 let usageEndpoint = URL(string: "https://api.anthropic.com/api/oauth/usage")!
 let settingsPage = URL(string: "https://claude.ai/settings/usage")!

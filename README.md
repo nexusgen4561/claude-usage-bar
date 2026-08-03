@@ -16,15 +16,6 @@ Click it for the full breakdown: one row per limit window, each with a status-co
 
 ## Install
 
-### Homebrew
-
-```bash
-brew install nexusgen4561/tap/claude-usage-bar
-open -a ~/Applications/"Claude Usage.app"
-```
-
-### From source
-
 ```bash
 git clone https://github.com/nexusgen4561/claude-usage-bar.git
 cd claude-usage-bar
@@ -34,16 +25,15 @@ open -a ~/Applications/"Claude Usage.app"
 
 `build.sh` compiles a universal binary, assembles `~/Applications/Claude Usage.app`, and ad-hoc signs it. Nothing is installed system-wide. Pass `APP_DIR=/Applications` to build somewhere else.
 
-Both routes compile on your machine rather than downloading a prebuilt binary, and that's deliberate — an unsigned app pulled off the internet gets quarantined by Gatekeeper and refuses to launch. Compiling locally sidesteps that entirely.
+You compile locally rather than downloading a prebuilt binary, and that's deliberate — an unsigned app pulled off the internet gets quarantined by Gatekeeper and refuses to launch. Building on your own machine sidesteps that entirely.
 
 ## Updating
 
 ```bash
-brew update && brew upgrade claude-usage-bar    # Homebrew
-git pull && ./build.sh                          # from source
+git pull && ./build.sh
 ```
 
-Either way, restart the widget afterwards — **Quit** from its menu, then launch it again. Both routes replace files on disk but neither restarts a process that's already running, so an old build keeps going until you stop it.
+Then restart the widget — **Quit** from its menu, then launch it again. `build.sh` replaces the bundle on disk but does not restart a process that's already running, so the old build keeps going until you stop it.
 
 ## Using it
 
@@ -69,7 +59,7 @@ The token is read fresh on every poll, so a token Claude Code refreshes in the b
 Two constraints are baked in, both learned the hard way:
 
 - **A `claude-code/<version>` User-Agent is required.** Without it the endpoint drops you into an aggressively rate-limited bucket and returns persistent 429s. The version is read from your local install.
-- **Polling never goes below 180 seconds.** That's the observed safe floor. On a 429 the interval doubles up to 30 minutes, then snaps back once it recovers. The UI still ticks every second because reset countdowns are computed locally from `resets_at` — no network involved.
+- **It polls once a minute.** Measured clean against the endpoint, which only returns metadata. On a 429 the interval doubles up to 30 minutes and then snaps back once it recovers, so a rate that turns out to be too fast corrects itself rather than wedging. Change `pollInterval` at the top of the source if you want it slower. The UI still ticks every second regardless, because reset countdowns are computed locally from `resets_at` — no network involved.
 
 ## Caveats
 
