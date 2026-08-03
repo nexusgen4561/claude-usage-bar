@@ -54,8 +54,19 @@ if [ "$STAGED_VERSION" != "$VERSION" ]; then
 fi
 echo "    clean-export build OK ($STAGED_VERSION)"
 
+# Every step from here is idempotent, so a re-run after a mid-script failure
+# (a failed audit, a network blip) picks up where it stopped instead of wedging
+# on "tag already exists".
 echo "==> Tagging v$VERSION"
-git -C "$SRC_DIR" tag -a "v$VERSION" -m "v$VERSION"
+if git -C "$SRC_DIR" rev-parse -q --verify "refs/tags/v$VERSION" >/dev/null; then
+    if [ "$(git -C "$SRC_DIR" rev-parse "v$VERSION^{commit}")" != "$(git -C "$SRC_DIR" rev-parse HEAD)" ]; then
+        echo "error: v$VERSION already exists and does not point at HEAD" >&2
+        exit 1
+    fi
+    echo "    v$VERSION already tagged at HEAD — reusing"
+else
+    git -C "$SRC_DIR" tag -a "v$VERSION" -m "v$VERSION"
+fi
 git -C "$SRC_DIR" push origin HEAD
 git -C "$SRC_DIR" push origin "v$VERSION"
 
@@ -85,11 +96,15 @@ echo "==> Bumping the formula"
     -e "s|^  sha256 \".*\"|  sha256 \"$SHA\"|" \
     "$FORMULA"
 brew audit --strict nexusgen4561/tap/claude-usage-bar
-git -C "$TAP" commit -qam "claude-usage-bar $VERSION"
+if [ -n "$(git -C "$TAP" status --porcelain)" ]; then
+    git -C "$TAP" commit -qam "claude-usage-bar $VERSION"
+else
+    echo "    formula already at $VERSION"
+fi
 git -C "$TAP" push origin HEAD
 
 echo "==> Publishing the release"
-gh release create "v$VERSION" --repo "$REPO" --title "v$VERSION" --notes "${NOTES:-See the commit log.}
+BODY="${NOTES:-See the commit log.}
 
 Update with:
 \`\`\`bash
@@ -97,5 +112,11 @@ brew update && brew upgrade claude-usage-bar
 \`\`\`
 
 Then restart the widget — Quit from its menu, then \`claude-usage-bar\`."
+if gh release view "v$VERSION" --repo "$REPO" >/dev/null 2>&1; then
+    gh release edit "v$VERSION" --repo "$REPO" --notes "$BODY" >/dev/null
+else
+    gh release create "v$VERSION" --repo "$REPO" --title "v$VERSION" --notes "$BODY" >/dev/null
+fi
+echo "    https://github.com/$REPO/releases/tag/v$VERSION"
 
 echo "==> Released v$VERSION"
