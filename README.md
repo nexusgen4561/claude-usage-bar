@@ -36,6 +36,15 @@ open -a ~/Applications/"Claude Usage.app"
 
 Both routes compile on your machine rather than downloading a prebuilt binary, and that's deliberate — an unsigned app pulled off the internet gets quarantined by Gatekeeper and refuses to launch. Compiling locally sidesteps that entirely.
 
+## Updating
+
+```bash
+brew update && brew upgrade claude-usage-bar    # Homebrew
+git pull && ./build.sh                          # from source
+```
+
+Either way, restart the widget afterwards — **Quit** from its menu, then launch it again. Both routes replace files on disk but neither restarts a process that's already running, so an old build keeps going until you stop it.
+
 ## Using it
 
 The icon shows your session and weekly-all percentages, colored by pressure (green under 60%, amber, orange, red at 95%+). It dims to gray when the data is stale. Hover for a tooltip.

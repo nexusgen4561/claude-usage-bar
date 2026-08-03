@@ -689,6 +689,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         FileManager.default.fileExists(atPath: launchAgentPath)
     }
 
+    /// launchd needs an absolute path, and a Homebrew install runs from a
+    /// version-stamped Cellar directory that `brew upgrade` deletes. Writing that
+    /// path into the LaunchAgent would silently break login startup on the next
+    /// upgrade, so rewrite it to the `opt` symlink, which Homebrew keeps pointed
+    /// at the current version. Non-Homebrew installs are returned untouched.
+    private func stableExecutablePath(_ executable: String) -> String {
+        let parts = executable.components(separatedBy: "/")
+        guard let cellar = parts.firstIndex(of: "Cellar"), cellar + 2 < parts.count else {
+            return executable
+        }
+        let prefix = parts[..<cellar].joined(separator: "/")
+        let formula = parts[cellar + 1]
+        let remainder = parts[(cellar + 3)...].joined(separator: "/")
+        let candidate = "\(prefix)/opt/\(formula)/\(remainder)"
+        return FileManager.default.fileExists(atPath: candidate) ? candidate : executable
+    }
+
     @objc private func toggleLaunchAtLogin() {
         let path = launchAgentPath
         if launchAgentInstalled() {
@@ -697,7 +714,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
             return
         }
 
-        let executable = Bundle.main.executablePath ?? ProcessInfo.processInfo.arguments[0]
+        let launched = Bundle.main.executablePath ?? ProcessInfo.processInfo.arguments[0]
+        let executable = stableExecutablePath(launched)
         let plist: [String: Any] = [
             "Label": launchAgentLabel,
             "ProgramArguments": [executable],
