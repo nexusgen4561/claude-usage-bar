@@ -17,6 +17,19 @@ Click it for the full breakdown: one row per limit window, each with a status-co
 ## Install
 
 ```bash
+brew install nexusgen4561/tap/claude-usage-bar
+claude-usage-bar
+```
+
+That's it — `claude-usage-bar` starts the widget. To also have it in Spotlight and Launchpad, link the bundle in:
+
+```bash
+ln -sfn "$(brew --prefix claude-usage-bar)/Claude Usage.app" ~/Applications/
+```
+
+### From source
+
+```bash
 git clone https://github.com/nexusgen4561/claude-usage-bar.git
 cd claude-usage-bar
 ./build.sh
@@ -25,15 +38,16 @@ open -a ~/Applications/"Claude Usage.app"
 
 `build.sh` compiles a universal binary, assembles `~/Applications/Claude Usage.app`, and ad-hoc signs it. Nothing is installed system-wide. Pass `APP_DIR=/Applications` to build somewhere else.
 
-You compile locally rather than downloading a prebuilt binary, and that's deliberate — an unsigned app pulled off the internet gets quarantined by Gatekeeper and refuses to launch. Building on your own machine sidesteps that entirely.
+Both routes compile on your machine rather than downloading a prebuilt binary, and that's deliberate — an unsigned app pulled off the internet gets quarantined by Gatekeeper and refuses to launch. Building locally sidesteps that entirely.
 
 ## Updating
 
 ```bash
-git pull && ./build.sh
+brew update && brew upgrade claude-usage-bar    # Homebrew
+git pull && ./build.sh                          # from source
 ```
 
-Then restart the widget — **Quit** from its menu, then launch it again. `build.sh` replaces the bundle on disk but does not restart a process that's already running, so the old build keeps going until you stop it.
+Either way, restart the widget afterwards — **Quit** from its menu, then launch it again. Both routes replace the bundle on disk but neither restarts a process that's already running, so the old build keeps going until you stop it.
 
 ## Using it
 
